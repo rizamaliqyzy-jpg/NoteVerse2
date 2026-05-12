@@ -1,0 +1,21 @@
+# NoteVerse .gitignore
+
+# NEVER commit these
+.env
+.env.local
+secrets.js
+*.secret
+
+# Supabase local dev
+.supabase/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Node (if you add tooling later)
+node_modules/
