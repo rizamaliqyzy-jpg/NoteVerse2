@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NoteVerse ✨</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪔</text></svg>"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <link rel="stylesheet" href="main.css"/>
+</head>
+<body>
+
+<!-- ═══ FLOATING PARTICLES ═══ -->
+<div id="particles"></div>
+
+<!-- ═══ AUTH SCREEN ═══ -->
+<div id="auth-screen">
+  <canvas id="stars-canvas"></canvas>
+
+  <div class="auth-world">
+    <!-- Floating characters -->
+    <div class="float-char char1">⭐</div>
+    <div class="float-char char2">🌙</div>
+    <div class="float-char char3">✨</div>
+    <div class="float-char char4">💫</div>
+    <div class="float-char char5">🔮</div>
+    <div class="float-char char6">📖</div>
+
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="lamp-wrap">
+          <span class="lamp-emoji">🪔</span>
+          <div class="lamp-glow"></div>
+        </div>
+        <h1>NoteVerse</h1>
+        <p>Where ideas come alive ✨</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <div id="login-form">
+        <div class="auth-field">
+          <label>Email</label>
+          <div class="input-wrap"><span class="input-icon">📧</span><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"/></div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <div class="input-wrap"><span class="input-icon">🔑</span><input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password"/></div>
+        </div>
+        <button class="auth-btn" id="login-btn" onclick="doLogin()">
+          <span class="btn-text">✨ Enter the Universe</span>
+          <div class="btn-shine"></div>
+        </button>
+        <p class="auth-error" id="login-error"></p>
+      </div>
+
+      <div id="register-form" hidden>
+        <div class="auth-field">
+          <label>Display Name</label>
+          <div class="input-wrap"><span class="input-icon">🧙</span><input type="text" id="reg-username" placeholder="Your magical name" autocomplete="nickname"/></div>
+        </div>
+        <div class="auth-field">
+          <label>Email</label>
+          <div class="input-wrap"><span class="input-icon">📧</span><input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"/></div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <div class="input-wrap"><span class="input-icon">🔑</span><input type="password" id="reg-pass" placeholder="At least 8 characters" autocomplete="new-password"/></div>
+        </div>
+        <div class="auth-field">
+          <label>Confirm Password</label>
+          <div class="input-wrap"><span class="input-icon">🔐</span><input type="password" id="reg-pass2" placeholder="Repeat password" autocomplete="new-password"/></div>
+        </div>
+        <button class="auth-btn" id="register-btn" onclick="doRegister()">
+          <span class="btn-text">🚀 Begin the Adventure</span>
+          <div class="btn-shine"></div>
+        </button>
+        <p class="auth-error" id="reg-error"></p>
+        <p class="auth-success" id="reg-success"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app" hidden>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <span class="logo-lamp">🪔</span>
+      <span class="logo-text">NoteVerse</span>
+    </div>
+    <div class="topbar-center" id="topbar-greeting"></div>
+    <div class="topbar-right">
+      <div class="sync-badge" id="sync-status">
+        <span id="sync-icon">☁️</span>
+        <span id="sync-label">Synced</span>
+      </div>
+      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">
+        <span id="theme-icon">🌙</span>
+      </button>
+      <div class="user-chip">
+        <div class="user-orb" id="user-avatar">?</div>
+        <span id="user-display">User</span>
+      </div>
+      <button class="signout-btn" onclick="doLogout()">✌️ Bye!</button>
+    </div>
+  </header>
+
+  <div class="app-body">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <button class="new-note-btn" onclick="newNote()">
+        <span class="plus-icon">+</span>
+        <span>New Note</span>
+        <div class="btn-shine"></div>
+      </button>
+      <div class="sidebar-label">📓 MY NOTES</div>
+      <div class="notes-list" id="notes-list"></div>
+    </aside>
+
+    <!-- MACBOOK STAGE -->
+    <main class="stage">
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-balloon">🎈</div>
+        <div class="empty-stars">
+          <span>⭐</span><span>✨</span><span>💫</span>
+        </div>
+        <h2>Your story starts here</h2>
+        <p>Create a new note and watch the magic unfold</p>
+        <button class="empty-cta" onclick="newNote()">✨ Start Writing</button>
+      </div>
+
+      <!-- MacBook -->
+      <div class="macbook-scene" id="macbook-scene" hidden>
+        <!-- Screen half -->
+        <div class="macbook-lid">
+          <div class="macbook-screen-bezel">
+            <div class="macbook-camera"></div>
+            <!-- EDITOR inside screen -->
+            <div class="macbook-display">
+              <div class="mac-menubar">
+                <div class="mac-dots">
+                  <div class="mac-dot red"></div>
+                  <div class="mac-dot yellow"></div>
+                  <div class="mac-dot green"></div>
+                </div>
+                <div class="mac-docname" id="mac-filename">untitled.txt</div>
+                <div class="mac-menu-items">
+                  <span>File</span><span>Edit</span><span>View</span>
+                </div>
+              </div>
+              <div class="editor-toolbar-inline">
+                <input class="note-title-input" id="note-title" placeholder="Note title…" oninput="onTitleChange()"/>
+                <span class="save-dot" id="save-indicator" title="Saved">●</span>
+              </div>
+              <div class="word-editor" id="word-editor" contenteditable="true"
+                data-placeholder="Start typing… your words appear here ✍️"
+                oninput="onEditorChange()" spellcheck="true"></div>
+            </div>
+          </div>
+          <!-- Screen shine overlay -->
+          <div class="screen-shine"></div>
+          <!-- Apple logo -->
+          <div class="apple-logo">🍎</div>
+        </div>
+
+        <!-- Hinge -->
+        <div class="macbook-hinge"></div>
+
+        <!-- Base / keyboard half -->
+        <div class="macbook-base">
+          <div class="macbook-keyboard">
+            <!-- Function row -->
+            <div class="kb-row kb-fn-row">
+              <div class="kb-key fn">esc</div>
+              <div class="kb-key fn">F1</div><div class="kb-key fn">F2</div>
+              <div class="kb-key fn">F3</div><div class="kb-key fn">F4</div>
+              <div class="kb-key fn">F5</div><div class="kb-key fn">F6</div>
+              <div class="kb-key fn">F7</div><div class="kb-key fn">F8</div>
+              <div class="kb-key fn">F9</div><div class="kb-key fn">F10</div>
+              <div class="kb-key fn">F11</div><div class="kb-key fn">F12</div>
+              <div class="kb-key fn touch-id">⏻</div>
+            </div>
+            <!-- Row 1 -->
+            <div class="kb-row">
+              <div class="kb-key">`</div><div class="kb-key">1</div><div class="kb-key">2</div>
+              <div class="kb-key">3</div><div class="kb-key">4</div><div class="kb-key">5</div>
+              <div class="kb-key">6</div><div class="kb-key">7</div><div class="kb-key">8</div>
+              <div class="kb-key">9</div><div class="kb-key">0</div><div class="kb-key">-</div>
+              <div class="kb-key">=</div><div class="kb-key wide">⌫</div>
+            </div>
+            <!-- Row 2 -->
+            <div class="kb-row">
+              <div class="kb-key wide">tab</div><div class="kb-key">Q</div><div class="kb-key">W</div>
+              <div class="kb-key">E</div><div class="kb-key">R</div><div class="kb-key">T</div>
+              <div class="kb-key">Y</div><div class="kb-key">U</div><div class="kb-key">I</div>
+              <div class="kb-key">O</div><div class="kb-key">P</div><div class="kb-key">[</div>
+              <div class="kb-key">]</div><div class="kb-key wide">\</div>
+            </div>
+            <!-- Row 3 -->
+            <div class="kb-row">
+              <div class="kb-key xwide">caps</div><div class="kb-key">A</div><div class="kb-key">S</div>
+              <div class="kb-key">D</div><div class="kb-key">F</div><div class="kb-key">G</div>
+              <div class="kb-key">H</div><div class="kb-key">J</div><div class="kb-key">K</div>
+              <div class="kb-key">L</div><div class="kb-key">;</div><div class="kb-key">'</div>
+              <div class="kb-key xwide">return</div>
+            </div>
+            <!-- Row 4 -->
+            <div class="kb-row">
+              <div class="kb-key xxwide">shift</div><div class="kb-key">Z</div><div class="kb-key">X</div>
+              <div class="kb-key">C</div><div class="kb-key">V</div><div class="kb-key">B</div>
+              <div class="kb-key">N</div><div class="kb-key">M</div><div class="kb-key">,</div>
+              <div class="kb-key">.</div><div class="kb-key">/</div><div class="kb-key xxwide">shift</div>
+            </div>
+            <!-- Row 5 bottom -->
+            <div class="kb-row kb-bottom-row">
+              <div class="kb-key fn">fn</div><div class="kb-key mod">⌃</div>
+              <div class="kb-key mod">⌥</div><div class="kb-key cmd">⌘</div>
+              <div class="kb-key spacebar"></div>
+              <div class="kb-key cmd">⌘</div><div class="kb-key mod">⌥</div>
+              <div class="kb-key arr">◀</div><div class="kb-key arr-ud">▲▼</div><div class="kb-key arr">▶</div>
+            </div>
+          </div>
+          <!-- Trackpad -->
+          <div class="macbook-trackpad"></div>
+          <!-- Speaker grills -->
+          <div class="speaker-left">
+            <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
+            <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
+          </div>
+          <div class="speaker-right">
+            <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
+            <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
+          </div>
+        </div>
+
+        <!-- Bottom foot -->
+        <div class="macbook-foot"></div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="notes.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
